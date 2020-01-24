@@ -9,7 +9,9 @@ export default class ImagePickerExample extends React.Component {
         image: null,
         isLoading: true,
         resultAPI : null,
-        imageFormat:null
+        imageFormat:null,
+        message:'',
+        ipServer : 'http://172.16.4.33:5000',
     };
 
 
@@ -24,7 +26,7 @@ export default class ImagePickerExample extends React.Component {
         });
 
 
-        fetch('http://192.168.43.198:5000/file-upload', {
+        fetch(this.state.ipServer+'/file-upload', {
             method: 'post',
             body: data,
         })
@@ -40,13 +42,14 @@ export default class ImagePickerExample extends React.Component {
 
     ConnectAPI(){
 
-        return fetch('http://192.168.43.198:5000/')
+        return fetch(this.state.ipServer)
             .then((response) => response.json())
             .then((responseJson) => {
 
                 this.setState({
                     isLoading: false,
                     dataSource: responseJson.movies,
+                    message : responseJson.title,
                 }, function(){
                 });
 
@@ -62,14 +65,10 @@ export default class ImagePickerExample extends React.Component {
         if(this.state.isLoading){
             return(
                 <View style={{flex: 1, padding: 20}}>
-                    <ActivityIndicator/>
+
                     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                        <Button
-                            title="Pick an image from camera roll"
-                            onPress={this._pickImage}
-                        />
-                        {this.state.image &&
-                        <Image source={{ uri: this.state.image }} style={{ width: 200, height: 200 }} />}
+                        <Text>Attend la réponse du server</Text>
+                        <ActivityIndicator/>
                     </View>
                 </View>
             )
@@ -77,11 +76,7 @@ export default class ImagePickerExample extends React.Component {
 
         return(
             <View style={{flex: 1, paddingTop:20}}>
-                <FlatList
-                    data={this.state.dataSource}
-                    renderItem={({item}) => <Text>{item.title}, {item.releaseYear}</Text>}
-                    keyExtractor={({id}, index) => id}
-                />
+
                 <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                     <Button
                         title="Pick an image from camera roll"
@@ -89,6 +84,18 @@ export default class ImagePickerExample extends React.Component {
                     />
                     {this.state.image &&
                     <Image source={{ uri: this.state.image }} style={{ width: 200, height: 200 }} />}
+                    <Text/><Text/>
+                    <Button
+                        title="heure"
+                        onPress={this._time}
+                    />
+                    <Text>{this.state.message}</Text>
+
+                    <Button
+                        title="eteindre"
+                        onPress={this._Eteindre}
+                    />
+
                 </View>
             </View>
         );
@@ -107,6 +114,38 @@ export default class ImagePickerExample extends React.Component {
                 alert('Sorry, we need camera roll permissions to make this work!');
             }
         }
+    };
+
+    _time = async ()=>{
+        return fetch(this.state.ipServer+'/heure')
+            .then((response) => response.json())
+            .then((responseJson) => {
+
+                this.setState({
+                   // message: responseJson.message,
+                }, function(){
+                });
+
+            })
+            .catch((error) =>{
+                console.error(error);
+            });
+    };
+
+    _Eteindre = async ()=>{
+        return fetch(this.state.ipServer+'/eteindre')
+            .then((response) => response.json())
+            .then((responseJson) => {
+
+                this.setState({
+                   // message: responseJson.message,
+                }, function(){
+                });
+
+            })
+            .catch((error) =>{
+                console.error(error);
+            });
     };
 
     _pickImage = async () => {
